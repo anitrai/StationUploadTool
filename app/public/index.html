@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Station Upload Tool</title>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --background: #f4f7fc;
+            --surface: #ffffff;
+            --text: #172033;
+            --muted: #64748b;
+            --border: #dce4ef;
+            --success: #15803d;
+            --success-bg: #ecfdf3;
+            --danger: #b91c1c;
+            --danger-bg: #fff1f2;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            color: var(--text);
+            background: var(--background);
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topbar-inner {
+            max-width: 1040px;
+            margin: auto;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+        }
+
+        .brand-title {
+            font-size: 17px;
+            font-weight: 650;
+        }
+
+        .brand-subtitle {
+            margin-top: 3px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        main {
+            max-width: 1040px;
+            margin: 34px auto;
+            padding: 0 24px 32px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: -0.6px;
+        }
+
+        .intro {
+            margin: 10px 0 24px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 6px 24px rgba(15, 23, 42, 0.04);
+            overflow: hidden;
+        }
+
+        .panel-body {
+            padding: 24px;
+        }
+
+        .section-title {
+            margin: 0 0 6px;
+            font-size: 18px;
+        }
+
+        .section-description {
+            margin: 0 0 22px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .upload-card {
+            border: 1px dashed #bac9df;
+            border-radius: 12px;
+            padding: 22px;
+            background: #fafcff;
+            min-width: 0;
+        }
+
+        .step-number {
+            display: inline-grid;
+            place-items: center;
+            width: 30px;
+            height: 30px;
+            margin-bottom: 14px;
+            border-radius: 9px;
+            color: var(--primary);
+            background: #eaf1ff;
+            font-weight: 700;
+        }
+
+        .upload-title {
+            display: block;
+            font-weight: 650;
+            margin-bottom: 8px;
+        }
+
+        .upload-description {
+            margin: 0 0 18px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--muted);
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        input[type="file"]::file-selector-button {
+            margin-right: 10px;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: white;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .hint {
+            margin: 18px 0 0;
+            padding: 12px 14px;
+            background: #eff6ff;
+            color: #36577d;
+            border-radius: 9px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        code {
+            font-size: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding-top: 22px;
+            margin-top: 22px;
+            border-top: 1px solid var(--border);
+        }
+
+        .action-note {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .primary-button {
+            flex-shrink: 0;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 9px;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .primary-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .primary-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        summary:focus-visible,
+        #status:focus-visible {
+            outline: 3px solid #93c5fd;
+            outline-offset: 3px;
+        }
+
+        .results-panel {
+            margin-top: 24px;
+        }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .results-header h2 {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        .job-state {
+            border-radius: 999px;
+            padding: 6px 11px;
+            background: #f1f5f9;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .job-state.running {
+            background: #eff6ff;
+            color: var(--primary);
+        }
+
+        .job-state.completed {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .job-state.error {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .results-summary {
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        #status {
+            height: 320px;
+            overflow: auto;
+            padding: 20px 24px;
+            overflow-wrap: anywhere;
+        }
+
+        .empty-state {
+            min-height: 100%;
+            display: grid;
+            place-content: center;
+            text-align: center;
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .empty-state-title {
+            margin: 0 0 6px;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            margin: 0;
+        }
+
+        .result-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--success);
+        }
+
+        .result-card.failed {
+            border-left-color: var(--danger);
+        }
+
+        .result-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .station-name {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 650;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: var(--success-bg);
+            color: var(--success);
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .badge.failed {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .result-meta,
+        .result-reason {
+            margin: 7px 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--muted);
+        }
+
+        .result-reason {
+            color: var(--danger);
+        }
+
+        details {
+            margin-top: 12px;
+        }
+
+        summary {
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        pre {
+            margin: 12px 0 0;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f6f8fc;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .error-message {
+            padding: 14px;
+            border-radius: 8px;
+            background: var(--danger-bg);
+            color: var(--danger);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 640px) {
+            main {
+                margin-top: 24px;
+                padding: 0 16px 24px;
+            }
+
+            .upload-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-body {
+                padding: 18px;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .results-header {
+                padding: 16px 18px;
+            }
+
+            #status {
+                padding: 18px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="logo" aria-hidden="true">SU</div>
+
+            <div>
+                <div class="brand-title">Station Upload Tool</div>
+                <div class="brand-subtitle">
+                    Station document processing
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <h1>Upload station documents</h1>
+
+        <p class="intro">
+            Select your station archive and user configuration,
+            then start processing. Review the results below.
+        </p>
+
+        <section class="panel" aria-labelledby="inputHeading">
+            <div class="panel-body">
+                <h2 class="section-title" id="inputHeading">
+                    Input files
+                </h2>
+
+                <p class="section-description">
+                    Both files are required. You can select them from
+                    anywhere on your computer.
+                </p>
+
+                <form id="uploadForm">
+                    <div class="upload-grid">
+                        <div class="upload-card">
+                            <span class="step-number" aria-hidden="true">1</span>
+
+                            <label class="upload-title" for="stationZip">
+                                Station archive
+                            </label>
+
+                            <p class="upload-description" id="archiveHelp">
+                                Select CCDx_TESTING.zip containing the station
+                                folders and their required documents.
+                            </p>
+
+                            <input type="file" id="stationZip" name="stationZip" accept=".zip"
+                                aria-describedby="archiveHelp" required />
+                        </div>
+
+                        <div class="upload-card">
+                            <span class="step-number" aria-hidden="true">2</span>
+
+                            <label class="upload-title" for="userConfig">
+                                User configuration
+                            </label>
+
+                            <p class="upload-description" id="configHelp">
+                                Select station_user.json containing the user
+                                credentials and station names.
+                            </p>
+
+                            <input type="file" id="userConfig" name="userConfig" accept=".json"
+                                aria-describedby="configHelp" required />
+                        </div>
+                    </div>
+
+                    <p class="hint">
+                        Each station folder must contain
+                        <code>LOGIC11_NEW.csv</code>,
+                        <code>LOGIC11_OLD.csv</code>,
+                        <code>TEMPLATE.pdf</code> and
+                        <code>TEMPLATE.dwg</code>.
+                    </p>
+
+                    <div class="actions">
+                        <p class="action-note">
+                            Keep the tool and its server window open
+                            until processing finishes.
+                        </p>
+
+                        <button type="submit" id="startBtn" class="primary-button">
+                            Start Upload
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="panel results-panel" aria-labelledby="resultsHeading">
+            <div class="results-header">
+                <h2 id="resultsHeading">Processing results</h2>
+
+                <span id="jobState" class="job-state" role="status">
+                    Ready
+                </span>
+            </div>
+
+            <div id="resultsSummary" class="results-summary">
+                No batch processed yet.
+            </div>
+
+            <div class="results-summary">
+                Total time: <span id="totalTime">00:00:00</span>
+            </div>
+
+            <div style="padding: 12px 24px; border-bottom: 1px solid var(--border);">
+                <button type="button" id="downloadReportBtn" class="primary-button" disabled>
+                    Download Report
+                </button>
+            </div>
+
+            <div id="status" role="region" aria-label="Station processing results" tabindex="0">
+                <div class="empty-state">
+                    <p class="empty-state-title">Your results will appear here</p>
+                    <p>Select both input files and click Start Upload.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            Local automation interface · Documents are processed
+            against your configured target application.
+        </footer>
+    </main>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const startBtn = document.getElementById('startBtn');
+        const stationInput = document.getElementById('stationZip');
+        const configInput = document.getElementById('userConfig');
+        const statusDiv = document.getElementById('status');
+        const jobState = document.getElementById('jobState');
+        const resultsSummary = document.getElementById('resultsSummary');
+
+        form.addEventListener('submit', startUpload);
+
+        function setJobState(label, state = '') {
+            jobState.textContent = label;
+            jobState.className = `job-state ${state}`;
+        }
+
+        function showMessage(title, message) {
+            statusDiv.replaceChildren();
+
+            const container = document.createElement('div');
+            container.className = 'empty-state';
+
+            const heading = document.createElement('p');
+            heading.className = 'empty-state-title';
+            heading.textContent = title;
+
+            const description = document.createElement('p');
+            description.textContent = message;
+
+            container.append(heading, description);
+            statusDiv.appendChild(container);
+        }
+
+        function showError(message) {
+            statusDiv.replaceChildren();
+
+            const error = document.createElement('div');
+            error.className = 'error-message';
+            error.setAttribute('role', 'alert');
+            error.textContent = message;
+
+            statusDiv.appendChild(error);
+        }
+
+        async function startUpload(event) {
+            event.preventDefault();
+
+            const stationZip = stationInput.files[0];
+            const userConfig = configInput.files[0];
+
+            if (!stationZip || !userConfig) {
+                showError('Please select both input files.');
+                return;
+            }
+
+            if (!stationZip.name.toLowerCase().endsWith('.zip')) {
+                showError('Select a ZIP archive for the station input.');
+                return;
+            }
+
+            if (!userConfig.name.toLowerCase().endsWith('.json')) {
+                showError('Select a JSON file for the user configuration.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('stationZip', stationZip);
+            formData.append('userConfig', userConfig);
+
+            startBtn.disabled = true;
+            stationInput.disabled = true;
+            configInput.disabled = true;
+            startBtn.textContent = 'Processing...';
+            startTimer();
+
+            latestReport = null;
+            downloadReportBtn.disabled = true;
+
+            setJobState('Processing', 'running');
+            resultsSummary.textContent = 'Batch processing is in progress.';
+
+            showMessage(
+                'Processing station documents',
+                'Results will appear when the batch finishes.'
+            );
+
+            try {
+                const response = await fetch('/start-upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || result.error) {
+                    throw new Error(
+                        result.error || `Request failed: HTTP ${response.status}`
+                    );
+                }
+
+                if (!Array.isArray(result.results)) {
+                    throw new Error('The server returned an unexpected result format.');
+                }
+
+                const durationMs = performance.now() - startedAt;
+
+                latestReport = {
+                    generatedAt: new Date().toISOString(),
+
+                    totalTime: formatDuration(durationMs),
+                    durationMs: Math.round(durationMs),
+
+                    summary: {
+                        total: result.results.length,
+
+                        successful: result.results.filter(
+                            item => item.status === 'SUCCESS'
+                        ).length,
+
+                        failed: result.results.filter(
+                            item => item.status === 'FAILED'
+                        ).length
+                    },
+
+                    results: result.results
+                };
+
+                renderResults(result.results);
+
+                downloadReportBtn.disabled = false;
+            } catch (error) {
+                setJobState('Error', 'error');
+                resultsSummary.textContent =
+                    'The batch could not be completed normally.';
+
+                showError(error.message);
+            } finally {
+                stopTimer();
+                startBtn.disabled = false;
+                stationInput.disabled = false;
+                configInput.disabled = false;
+                startBtn.textContent = 'Start Upload';
+            }
+        }
+
+        function renderResults(results) {
+            statusDiv.replaceChildren();
+
+            const successCount = results.filter(
+                item => item.status === 'SUCCESS'
+            ).length;
+
+            const failedCount = results.filter(
+                item => item.status === 'FAILED'
+            ).length;
+
+            resultsSummary.textContent =
+                `Total: ${results.length} · ` +
+                `Successful: ${successCount} · ` +
+                `Failed: ${failedCount}`;
+
+            if (results.length === 0) {
+                setJobState('No results');
+                showMessage(
+                    'No station results',
+                    'The server did not return any station records.'
+                );
+                return;
+            }
+
+            if (failedCount > 0) {
+                setJobState('Completed with failures', 'error');
+            } else {
+                setJobState('Completed', 'completed');
+            }
+
+            for (const item of results) {
+                const isSuccess = item.status === 'SUCCESS';
+
+                const card = document.createElement('article');
+                card.className =
+                    `result-card${isSuccess ? '' : ' failed'}`;
+
+                const heading = document.createElement('div');
+                heading.className = 'result-heading';
+
+                const station = document.createElement('h3');
+                station.className = 'station-name';
+                station.textContent = item.station ?? 'Unknown station';
+
+                const badge = document.createElement('span');
+                badge.className = `badge${isSuccess ? '' : ' failed'}`;
+                badge.textContent = item.status ?? 'UNKNOWN';
+
+                heading.append(station, badge);
+
+                const user = document.createElement('p');
+                user.className = 'result-meta';
+                user.textContent =
+                    `Uploaded by: ${item.user ?? 'Not available'}`;
+
+                const outputId =
+                    item.apiResponse?.outputFileInfo?.Output_ID ??
+                    'Not available';
+
+                const output = document.createElement('p');
+                output.className = 'result-meta';
+                output.textContent = `Output ID: ${outputId}`;
+
+                card.append(heading, user, output);
+
+                if (item.reason) {
+                    const reason = document.createElement('p');
+                    reason.className = 'result-reason';
+                    reason.textContent = `Reason: ${item.reason}`;
+                    card.appendChild(reason);
+                }
+
+                const details = document.createElement('details');
+
+                const summary = document.createElement('summary');
+                summary.textContent = 'View full technical response';
+
+                const response = document.createElement('pre');
+                response.textContent = JSON.stringify(item, null, 2);
+
+                details.append(summary, response);
+                card.appendChild(details);
+                statusDiv.appendChild(card);
+            }
+
+            statusDiv.scrollTop = 0;
+        }
+
+        const totalTime = document.getElementById('totalTime');
+
+        let timerInterval = null;
+        let startedAt = null;
+
+        function formatDuration(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            return [hours, minutes, seconds]
+                .map(value => String(value).padStart(2, '0'))
+                .join(':');
+        }
+
+        function updateTimer() {
+            if (startedAt === null) return;
+
+            totalTime.textContent = formatDuration(
+                performance.now() - startedAt
+            );
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+
+            startedAt = performance.now();
+            totalTime.textContent = '00:00:00';
+
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function stopTimer() {
+            updateTimer();
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        const downloadReportBtn =
+            document.getElementById('downloadReportBtn');
+
+        let latestReport = null;
+
+        downloadReportBtn.addEventListener('click', downloadReport);
+
+        function downloadReport() {
+            if (!latestReport) return;
+
+            const reportText = JSON.stringify(latestReport, null, 2);
+
+            const blob = new Blob([reportText], {
+                type: 'application/json;charset=utf-8'
+            });
+
+            const url = URL.createObjectURL(blob);
+
+            const timestamp = latestReport.generatedAt
+                .replace(/[:.]/g, '-');
+
+            const link = document.createElement('a');
+
+            link.href = url;
+            link.download = `station-upload-report-${timestamp}.json`;
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>
